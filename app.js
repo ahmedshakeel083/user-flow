@@ -58,7 +58,7 @@ app.post("/register", async (req, res) => {
       });
       const token = jwt.sign({email, userid: user._id }, "privateKey");
       res.cookie("token", token);
-      res.redirect("/");
+      res.redirect("/login");
     })
   });
 });
@@ -73,7 +73,7 @@ app.post("/login", async (req, res) => {
     if (result) {
       const token = jwt.sign({email: user.email, userid: user._id}, "privateKey");
       res.cookie("token", token);
-      res.redirect("/");
+      res.redirect("/profile");
     }
   })
 });
