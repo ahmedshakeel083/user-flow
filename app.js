@@ -38,12 +38,34 @@ app.get("/profile", isLoggedin, async (req, res) => {
   const user = await User.findById(userid).populate("posts") ;
   if (user) res.render("profile", { user });
   else res.send("User not found");
+});
+
+app.get("/like/:id", isLoggedin, async (req, res) => {
+  const { userid } = req.user;
+  let post = await Post.findById(req.params.id).populate("user");
+  if (post.likes.includes(userid)) {
+    post.likes.splice(post.likes.indexOf(userid), 1);
+  } else {
+    post.likes.push(userid);
+  }
+  await post.save();
+  res.redirect("/profile");
+});
+
+app.get("/edit/:id", isLoggedin, async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  res.render("edit", { post })
+});
+
+app.post("/update/:id", isLoggedin, async (req, res) => {
+  const { content } = req.body;
+  const post = await Post.findByIdAndUpdate(req.params.id, { content });
+  res.redirect("/profile");
 })
 
 app.post("/register", async (req, res) => {
   const { username, name, email, age, password } = req.body;
   let user = await User.findOne({ email });
-  console.log("myuser", user);
   if (user) return res.status(400).send("User already registered");
 
   bcrypt.genSalt(10, (err, salt) => {
