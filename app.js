@@ -17,9 +17,9 @@ app.set("views", path.join(__dirname, "views"));
 
 function isLoggedin(req, res, next){
   const token = req.cookies.token;
-  if (!token) return res.send("You need to Login First");
+  if (!token) return res.redirect("/login");
   jwt.verify(token, "privateKey", (err, decoded) => {
-    if (err) return res.send("You need to Login First");
+    if (err) return res.redirect("/login");
     req.user = decoded;
     next();
   })
@@ -35,7 +35,7 @@ app.get("/login", (req, res) => {
 
 app.get("/profile", isLoggedin, async (req, res) => {
   const { email, userid } = req.user;
-  const user = await User.findById(userid);
+  const user = await User.findById(userid).populate("posts") ;
   if (user) res.render("profile", { user });
   else res.send("User not found");
 })
@@ -58,7 +58,7 @@ app.post("/register", async (req, res) => {
       });
       const token = jwt.sign({email, userid: user._id }, "privateKey");
       res.cookie("token", token);
-      res.redirect("/login");
+      res.redirect("/profile");
     })
   });
 });
@@ -82,6 +82,23 @@ app.get("/logout", (req, res) => {
   res.cookie("token", "");
   res.redirect("/");
 });
+
+app.post("/post", isLoggedin, async (req, res) => {
+  const { content } = req.body;
+  const { userid } = req.user;
+  const user = await User.findById(userid);
+  if (user) {
+    const post = await Post.create({
+      user: userid,
+      content
+    });
+    user.posts.push(post._id);
+    await user.save();
+    res.redirect("/profile");
+  } else {
+    res.send("User not found");
+  }
+})
 
 
 app.listen(PORT, () => {
