@@ -33,6 +33,14 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
+app.get("/upload", (req, res) => {
+  res.render("multer");
+})
+
+app.post("/upload", (req, res) => {
+  
+})
+
 app.get("/profile", isLoggedin, async (req, res) => {
   const { email, userid } = req.user;
   const user = await User.findById(userid).populate("posts") ;
