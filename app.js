@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const upload = require("./config/multer");
+
 const User = require("./models/user");
 const Post = require("./models/post");
 const PORT = 3000;
@@ -33,12 +35,20 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-app.get("/upload", (req, res) => {
-  res.render("multer");
-})
+app.get("/profile/upload", isLoggedin, (req, res) => {
+  res.render("upload");
+});
 
-app.post("/upload", (req, res) => {
-  
+app.post("/upload", upload.single("img"), isLoggedin, async (req, res) => {
+  const { userid } = req.user;
+  const user = await User.findById(userid);
+  if (user) {
+    user.profilePic = req.file.filename;
+    await user.save();
+    res.redirect("/profile");
+  } else {
+    res.send("User not found");
+  }
 })
 
 app.get("/profile", isLoggedin, async (req, res) => {

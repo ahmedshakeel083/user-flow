@@ -8,7 +8,11 @@
 </head>
 <body>
     <div class="w-full min-h-screen bg-zinc-900 flex text-white flex-col gap-4 p-10">
-      <h1>Hey, <%= user.name %></h1>
+      <div class="flex items-center gap-4">
+        <img class="w-20 h-20 rounded-full object-cover" src="/img/uploads/<%= user.profilePic %>" alt="profile pic">
+        <h1 class="text-2xl font-bold">Hey, <%= user.name %></h1>
+      </div>
+      <button class="w-[200px] bg-blue-500 text-white px-2 py-2 rounded-lg" type="button" onclick="window.location.href='/profile/upload'">Change Profile Picture</button>
       <p><%= user.username %></p>
       <p><%= user.email %></p>
       <p><%= user.age %></p>
